@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="vx_bg">#F7F5FF</color>
+    <color name="vx_accent">#7C4DFF</color>
+    <color name="vx_accent_soft">#B39DDB</color>
+    <color name="ic_launcher_background">#14162B</color>
+</resources>

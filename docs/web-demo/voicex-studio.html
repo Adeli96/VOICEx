@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060813">
+<title>VoiceX Studio — تغییر صدای آفلاین</title>
+<style>
+:root{
+  --bg:#060813;--panel:rgba(255,255,255,.045);--panel2:rgba(255,255,255,.07);--line:rgba(255,255,255,.09);
+  --txt:#eeebff;--muted:#9aa1cc;--a1:#8b6cff;--a2:#22d3ee;--a3:#ff6fa8;--ok:#4ade80;--warn:#fbbf24;
+  --r:22px;--font:"Vazirmatn","IRANSansX","Segoe UI",Tahoma,system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--font);line-height:1.55;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(1200px 700px at 85% -10%,rgba(139,108,255,.22),transparent 60%),
+  radial-gradient(900px 600px at 0% 40%,rgba(34,211,238,.12),transparent 60%),
+  radial-gradient(900px 700px at 60% 110%,rgba(255,111,168,.13),transparent 60%),var(--bg)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.aurora{position:fixed;z-index:-1;border-radius:50%;filter:blur(90px);opacity:.35;pointer-events:none;animation:float 26s ease-in-out infinite}
+.aurora.a{width:420px;height:420px;background:#6d4aff;top:-120px;left:-80px}
+.aurora.b{width:360px;height:360px;background:#0ea5c6;bottom:-100px;right:-60px;animation-delay:-9s}
+.aurora.c{width:300px;height:300px;background:#e0457f;top:45%;left:55%;opacity:.18;animation-delay:-16s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,40px) scale(1.12)}66%{transform:translate(-40px,70px) scale(.94)}}
+svg.i{width:1.2em;height:1.2em;fill:currentColor;flex:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--a2);outline-offset:2px}
+.app{max-width:1200px;margin:auto;padding:18px 16px 60px}
+header{display:flex;align-items:center;gap:14px;padding:8px 2px 18px}
+.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--a1),var(--a2));display:grid;place-items:center;box-shadow:0 8px 30px rgba(139,108,255,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+.logo svg{width:26px;height:26px;fill:#fff}
+header h1{margin:0;font-size:24px;letter-spacing:.3px;font-weight:800}
+header h1 span{background:linear-gradient(90deg,var(--a1),var(--a2) 60%,var(--a3));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{margin:0;color:var(--muted);font-size:13px}
+.badges{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.badge{font-size:11.5px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.grid{display:grid;gap:18px;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:start}
+.col{display:grid;gap:18px;min-width:0;grid-template-columns:minmax(0,1fr)}
+@media(max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);padding:18px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07);position:relative}
+.card h2{margin:0 0 12px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;color:#dcd8ff}
+.card h2 svg{color:var(--a2)}
+.card h2 small{margin-inline-start:auto;color:var(--muted);font-weight:400;font-size:12px}
+/* stage */
+.filebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.filebar .chip{flex:1 1 100%}.filebar .btn{flex:1}
+.chip{display:flex;align-items:center;gap:10px;flex:1;min-width:180px;padding:9px 12px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--line);overflow:hidden}
+.chip b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right}
+.chip span{font-size:11.5px;color:var(--muted);direction:ltr;display:block;text-align:right;unicode-bidi:plaintext}
+.chip .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(139,108,255,.35),rgba(34,211,238,.25));flex:none}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 15px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:14px;transition:.18s;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
+.btn.pri{background:linear-gradient(135deg,var(--a1),#6a4dff 55%,var(--a2));border-color:transparent;box-shadow:0 10px 30px rgba(110,80,255,.45);font-weight:700}
+.btn.pri:hover{filter:brightness(1.1)}
+.btn.rec.on{background:linear-gradient(135deg,#ff4d7d,#ff7a59);border-color:transparent;animation:pulse 1.3s infinite}
+.btn:disabled{opacity:.45;pointer-events:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,125,.55)}100%{box-shadow:0 0 0 16px rgba(255,77,125,0)}}
+.stage{position:relative;display:grid;place-items:center}
+#viz{width:min(100%,340px);aspect-ratio:1;display:block}
+.playwrap{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.play{pointer-events:auto;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;color:#fff;background:radial-gradient(circle at 30% 25%,#b9a6ff,var(--a1) 45%,#4b2fe0);box-shadow:0 0 0 1px rgba(255,255,255,.25) inset,0 14px 44px rgba(110,80,255,.6),0 0 70px rgba(139,108,255,.35);transition:transform .2s}
+.play:hover{transform:scale(1.05)}.play:active{transform:scale(.96)}
+.play svg{width:40px;height:40px}
+.drop{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:20px;border-radius:18px;border:2px dashed rgba(255,255,255,.18);background:rgba(8,10,25,.72);backdrop-filter:blur(4px);color:var(--muted);font-size:14px;z-index:3}
+.drop.show{display:grid}
+.empty{position:absolute;bottom:4px;left:0;right:0;text-align:center;color:var(--muted);font-size:13px;pointer-events:none}
+.now{display:flex;justify-content:center;gap:8px;align-items:center;margin:4px 0 10px;font-size:13.5px;color:#d7d3ff;min-height:24px}
+.now b{padding:3px 12px;border-radius:99px;background:rgba(139,108,255,.18);border:1px solid rgba(139,108,255,.35)}
+.wavebox{position:relative;height:92px;border-radius:16px;background:rgba(0,0,0,.28);border:1px solid var(--line);overflow:hidden;direction:ltr;touch-action:none;cursor:pointer}
+.wavebox canvas{position:absolute;inset:0;width:100%;height:100%}
+.wavebox .msg{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;color:var(--muted);direction:rtl}
+.times{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);direction:ltr;margin:6px 4px 0;font-variant-numeric:tabular-nums}
+.transport{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+.ic{width:42px;height:42px;border-radius:13px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;position:relative;transition:.15s}
+.ic:hover{background:rgba(255,255,255,.12)}
+.ic small{position:absolute;font-size:9px;font-weight:800;top:50%;left:50%;transform:translate(-50%,-38%)}
+.ic.fw svg{transform:scaleX(-1)}
+select{appearance:none;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:9px 12px;font:inherit;font-size:13px}
+select option{background:#14172b}
+.seg{display:inline-flex;padding:3px;border-radius:13px;background:rgba(0,0,0,.3);border:1px solid var(--line)}
+.seg button{padding:7px 13px;border-radius:10px;font-size:13px;color:var(--muted);transition:.18s}
+.seg button.on{background:linear-gradient(135deg,var(--a1),#5b3ee6);color:#fff;box-shadow:0 4px 14px rgba(110,80,255,.5)}
+.vol{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.vol input{width:90px}
+/* sliders */
+input[type=range]{-webkit-appearance:none;appearance:none;height:22px;background:transparent;direction:ltr;width:100%;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:9px;background:linear-gradient(90deg,var(--a1),var(--a2)) 0/var(--p,50%) 100% no-repeat,rgba(255,255,255,.12)}
+input[type=range]::-moz-range-track{height:6px;border-radius:9px;background:rgba(255,255,255,.12)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:9px;background:linear-gradient(90deg,var(--a1),var(--a2))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;margin-top:-6px;box-shadow:0 2px 10px rgba(0,0,0,.5),0 0 0 4px rgba(139,108,255,.3)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(139,108,255,.3)}
+/* library */
+.search{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid var(--line);margin-bottom:10px;color:var(--muted)}
+.search input{flex:1;background:none;border:0;color:var(--txt);font:inherit;font-size:14px;outline:none;min-width:0}
+.cats{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats button{padding:7px 13px;border-radius:99px;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--muted);white-space:nowrap;transition:.18s}
+.cats button.on{background:linear-gradient(135deg,rgba(139,108,255,.55),rgba(34,211,238,.3));color:#fff;border-color:rgba(139,108,255,.6)}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;max-height:520px;overflow:auto;padding:2px 3px 6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.pc{position:relative;text-align:center;padding:14px 8px 11px;border-radius:17px;background:var(--panel);border:1px solid var(--line);transition:.18s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pc:hover{background:var(--panel2);transform:translateY(-2px)}
+.pc .em{font-size:30px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+.pc b{font-size:13px;font-weight:600}
+.pc small{font-size:11px;color:var(--muted)}
+.pc.on{background:linear-gradient(160deg,rgba(139,108,255,.38),rgba(34,211,238,.16));border-color:rgba(139,108,255,.8);box-shadow:0 10px 34px rgba(110,80,255,.35),inset 0 1px 0 rgba(255,255,255,.15)}
+.pc .fav,.pc .del{position:absolute;top:6px;inset-inline-end:6px;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:rgba(255,255,255,.28)}
+.pc .fav.on{color:#ffd24a}
+.pc .fav:hover,.pc .del:hover{background:rgba(255,255,255,.1);color:#fff}
+.pc .del{inset-inline-end:auto;inset-inline-start:6px}
+.none{grid-column:1/-1;text-align:center;color:var(--muted);padding:24px 0;font-size:13px}
+/* studio */
+details{border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.18);margin-bottom:9px;overflow:hidden}
+summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";margin-inline-start:auto;width:8px;height:8px;border-inline-end:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:.2s}
+details[open] summary::after{transform:rotate(-135deg)}
+.rows{padding:2px 14px 12px;display:grid;gap:8px}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.row label{font-size:13px;color:#cfd0ee}
+.row output{font-size:12px;color:var(--a2);font-variant-numeric:tabular-nums;direction:ltr}
+.row input{grid-column:1/-1}
+.studio-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.save{display:none;gap:8px;margin-top:10px}.save.show{display:flex}
+.save input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--txt);font:inherit}
+/* export */
+.plan{font-size:12.5px;color:var(--muted);background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:13px;padding:10px 12px;margin-bottom:12px}
+.plan b{color:#e5e2ff}
+.prog{display:none;margin-top:14px}.prog.show{display:block}
+.bar{height:10px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3));background-size:200% 100%;animation:shine 2.2s linear infinite;transition:width .2s}
+@keyframes shine{to{background-position:-200% 0}}
+.pinfo{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:7px;direction:ltr}
+.result{display:none;margin-top:14px;padding:14px;border-radius:16px;background:linear-gradient(160deg,rgba(74,222,128,.13),rgba(34,211,238,.07));border:1px solid rgba(74,222,128,.35)}
+.result.show{display:block}
+.result audio{width:100%;margin:10px 0}
+.result .meta{font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--muted);margin:10px 2px 0}
+.hint a,.linkbtn{color:var(--a2);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px;line-height:1.9}
+#toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:grid;gap:8px;z-index:50;width:min(92vw,420px)}
+.toast{padding:12px 16px;border-radius:14px;background:rgba(20,22,44,.92);border:1px solid var(--line);backdrop-filter:blur(12px);box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:13.5px;animation:tin .25s}
+.toast.err{border-color:rgba(255,111,111,.6)}.toast.ok{border-color:rgba(74,222,128,.5)}
+@keyframes tin{from{opacity:0;transform:translateY(12px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2 5.3 8.7l1.4 1.4L11 5.8V16h2V5.8l4.3 4.3 1.4-1.4L12 2z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-4 6.7-6.7-1.4-1.4L13 12.2V2h-2v10.2L6.7 7.9 5.3 9.3 12 16z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .9-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.9z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4-7 4V3a1 1 0 0 1 1-1z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 10h2v4H3zm4-4h2v12H7zm4-4h2v20h-2zm4 4h2v12h-2zm4 4h2v4h-2z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></symbol>
+  <symbol id="i-lib" viewBox="0 0 24 24"><path d="M4 4h4v16H4zm6 0h4v16h-4zm6 2.5 3.8-1 3.2 15-3.8 1z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5z"/></symbol>
+</svg>
+<div class="aurora a"></div><div class="aurora b"></div><div class="aurora c"></div>
+
+<div class="app">
+<header>
+  <div class="logo"><svg viewBox="0 0 24 24"><use href="#i-wave"/></svg></div>
+  <div><h1><span>VoiceX</span> Studio</h1><p>استودیوی تغییر صدا — کاملاً آفلاین، همه‌چیز روی دستگاه خودت</p></div>
+  <div class="badges"><span class="badge"><i></i>بدون اینترنت</span><span class="badge" id="b-live">پیش‌نمایش زنده</span></div>
+</header>
+
+<div class="grid">
+<div class="col">
+
+  <section class="card" id="stageCard">
+    <div class="filebar">
+      <div class="chip"><div class="ico"><svg class="i"><use href="#i-file"/></svg></div>
+        <div style="min-width:0"><b id="fname">هنوز فایلی انتخاب نشده</b><span id="fmeta">فایل بده یا صدایت را ضبط کن</span></div></div>
+      <button class="btn" id="btnOpen"><svg class="i"><use href="#i-up"/></svg>فایل</button>
+      <button class="btn rec" id="btnRec"><svg class="i" id="recIcon"><use href="#i-mic"/></svg><span id="recTxt">ضبط</span></button>
+      <input type="file" id="file" accept="audio/*,video/*" hidden>
+    </div>
+
+    <div class="stage">
+      <canvas id="viz" width="680" height="680"></canvas>
+      <div class="playwrap"><button class="play" id="btnPlay" aria-label="پخش"><svg class="i" id="playIcon"><use href="#i-play"/></svg></button></div>
+      <div class="empty" id="emptyHint">فایل صوتی را اینجا بیانداز</div>
+      <div class="drop" id="drop">رها کن تا باز شود ✨</div>
+    </div>
+
+    <div class="now" id="now"></div>
+
+    <div class="wavebox" id="wavebox"><canvas id="wave"></canvas><div class="msg" id="waveMsg">شکل موج اینجا نمایش داده می‌شود</div></div>
+    <div class="times"><span id="tCur">0:00</span><span id="tDur">0:00</span></div>
+
+    <div class="transport">
+      <button class="ic" id="btnBack" title="۱۰ ثانیه عقب"><svg class="i"><use href="#i-replay"/></svg><small>10</small></button>
+      <button class="ic fw" id="btnFwd" title="۱۰ ثانیه جلو"><svg class="i"><use href="#i-replay"/></svg><small style="transform:translate(-50%,-38%) scaleX(-1)">10</small></button>
+      <div class="seg" id="ab"><button data-m="fx" class="on">پردازش‌شده</button><button data-m="orig">اصلی</button></div>
+      <select id="speed" title="سرعت پخش"><option value="0.5">۰٫۵×</option><option value="0.75">۰٫۷۵×</option><option value="1" selected>۱×</option><option value="1.25">۱٫۲۵×</option><option value="1.5">۱٫۵×</option><option value="2">۲×</option></select>
+      <div class="vol"><svg class="i"><use href="#i-wave"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.9"></div>
+    </div>
+  </section>
+
+  <section class="card" id="exportCard">
+    <h2><svg class="i"><use href="#i-down"/></svg>پردازش و ذخیره<small>تا چند ساعت صوت</small></h2>
+    <div class="plan" id="plan">بعد از انتخاب فایل، روش پردازش اینجا نمایش داده می‌شود.</div>
+    <div class="studio-actions">
+      <button class="btn pri" id="btnExport" disabled><svg class="i"><use href="#i-bolt"/></svg>پردازش و ذخیره WAV</button>
+      <button class="btn" id="btnCancel" style="display:none"><svg class="i"><use href="#i-x"/></svg>لغو</button>
+    </div>
+    <div class="prog" id="prog">
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="pinfo"><span id="pPct">0%</span><span id="pSpeed"></span><span id="pEta"></span></div>
+    </div>
+    <div class="result" id="result">
+      <div class="meta"><b>✅ آماده شد</b><span id="rMeta"></span></div>
+      <audio id="rAudio" controls></audio>
+      <a class="btn pri" id="rLink" download><svg class="i"><use href="#i-down"/></svg>دانلود فایل</a>
+    </div>
+    <p class="hint">برای صوت‌های خیلی طولانی که دیکد کامل‌شان ممکن نیست، می‌توانی <a class="linkbtn" id="btnLiveCap">خروجی را هم‌زمان با پخش ضبط کنی</a> (به اندازه‌ی طول صوت زمان می‌برد).</p>
+  </section>
+
+</div>
+<div class="col">
+
+  <section class="card">
+    <h2><svg class="i"><use href="#i-lib"/></svg>کتابخانه‌ی صدا<small id="pcount"></small></h2>
+    <label class="search"><svg class="i"><use href="#i-search"/></svg><input id="q" placeholder="جستجوی صدا…" autocomplete="off"></label>
+    <div class="cats" id="cats"></div>
+    <div class="presets" id="presets"></div>
+  </section>
+
+  <section class="card">
+    <h2><svg class="i"><use href="#i-sliders"/></svg>استودیوی دقیق<small>همین حالا اثر می‌کند</small></h2>
+    <div id="studio"></div>
+    <div class="studio-actions">
+      <button class="btn" id="btnReset"><svg class="i"><use href="#i-reset"/></svg>برگشت به پریست</button>
+      <button class="btn" id="btnSaveAs"><svg class="i"><use href="#i-save"/></svg>ذخیره به‌عنوان صدای من</button>
+    </div>
+    <div class="save" id="saveRow"><input id="saveName" placeholder="نام صدای من…" maxlength="24"><button class="btn pri" id="saveOk">ذخیره</button></div>
+  </section>
+
+</div>
+</div>
+
+<footer>
+  VoiceX Studio · پردازش با موتور DSP اختصاصی (تغییر زیر و بمی، تایمبر، ریورب، اکو، افکت‌های ارتباطی و …)<br>
+  میانبرها: Space پخش/توقف · ←/→ جابه‌جایی ۵ ثانیه · A مقایسه‌ی اصلی و پردازش‌شده
+</footer>
+</div>
+<div id="toasts"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const fmtT = s => { s = Math.max(0, s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = Math.floor(s % 60); return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+const fmtB = b => b > 1e9 ? (b / 1e9).toFixed(2) + ' GB' : b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } } };
+function toast(msg, kind) { const t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => { t.style.opacity = 0; t.style.transition = '.3s'; setTimeout(() => t.remove(), 320); }, kind === 'err' ? 5200 : 2800); }
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => r()));
+
+/* ================= DSP engine (shared by live worklet + export worker) ================= */
+function VXDSP() {
+  const TAU = Math.PI * 2;
+  const DEFAULTS = {
+    pitch: 0, timbre: 0, bass: 0, treble: 0, lp: 20000, gate: 0,
+    drive: 0, bits: 16, ds: 1, ring: 0, ringMix: 0.9, trem: 0, tremD: 0,
+    chorus: 0, echoMs: 250, echoFb: 0.35, echoMix: 0, rev: 0.5, revMix: 0,
+    noise: 0, vol: 0
+  };
+
+  class Biquad {
+    constructor() { this.on = false; this.b0 = 1; this.b1 = 0; this.b2 = 0; this.a1 = 0; this.a2 = 0; this.x1 = 0; this.x2 = 0; this.y1 = 0; this.y2 = 0; }
+    shelf(high, sr, f0, db) {
+      if (Math.abs(db) < 0.05) { this.on = false; return; }
+      const A = Math.pow(10, db / 40), w = TAU * f0 / sr, c = Math.cos(w), s = Math.sin(w);
+      const al = s / 2 * Math.SQRT2, t = 2 * Math.sqrt(A) * al;
+      let b0, b1, b2, a0, a1, a2;
+      if (!high) {
+        b0 = A * ((A + 1) - (A - 1) * c + t); b1 = 2 * A * ((A - 1) - (A + 1) * c); b2 = A * ((A + 1) - (A - 1) * c - t);
+        a0 = (A + 1) + (A - 1) * c + t; a1 = -2 * ((A - 1) + (A + 1) * c); a2 = (A + 1) + (A - 1) * c - t;
+      } else {
+        b0 = A * ((A + 1) + (A - 1) * c + t); b1 = -2 * A * ((A - 1) + (A + 1) * c); b2 = A * ((A + 1) + (A - 1) * c - t);
+        a0 = (A + 1) - (A - 1) * c + t; a1 = 2 * ((A - 1) - (A + 1) * c); a2 = (A + 1) - (A - 1) * c - t;
+      }
+      this.b0 = b0 / a0; this.b1 = b1 / a0; this.b2 = b2 / a0; this.a1 = a1 / a0; this.a2 = a2 / a0; this.on = true;
+    }
+    lowpass(sr, f0, q) {
+      if (f0 >= 19000 || f0 >= sr * 0.45) { this.on = false; return; }
+      const w = TAU * f0 / sr, c = Math.cos(w), s = Math.sin(w), al = s / (2 * q), a0 = 1 + al;
+      this.b0 = (1 - c) / 2 / a0; this.b1 = (1 - c) / a0; this.b2 = this.b0; this.a1 = -2 * c / a0; this.a2 = (1 - al) / a0; this.on = true;
+    }
+    run(x) {
+      const y = this.b0 * x + this.b1 * this.x1 + this.b2 * this.x2 - this.a1 * this.y1 - this.a2 * this.y2;
+      this.x2 = this.x1; this.x1 = x; this.y2 = this.y1; this.y1 = y; return y;
+    }
+  }
+
+  const pow2 = n => { let p = 1; while (p < n) p <<= 1; return p; };
+
+  class Chain {
+    constructor(sr) {
+      this.sr = sr;
+      // pitch shifter (two-tap crossfaded delay line)
+      this.psN = pow2(Math.ceil(sr * 0.25)); this.psMask = this.psN - 1; this.ps = new Float32Array(this.psN);
+      this.psW = Math.round(sr * 0.045); this.psWr = 0; this.psD = 0; this.psStep = 0;
+      this.low = new Biquad(); this.high = new Biquad(); this.lpf = new Biquad(); this.lpf2 = new Biquad();
+      // chorus
+      this.cN = pow2(Math.ceil(sr * 0.06)); this.cMask = this.cN - 1; this.cb = new Float32Array(this.cN); this.cW = 0; this.cPh = 0;
+      // echo
+      this.eN = pow2(Math.ceil(sr * 1.1)); this.eMask = this.eN - 1; this.eb = new Float32Array(this.eN); this.eW = 0;
+      // reverb (freeverb style)
+      const k = sr / 44100;
+      this.combs = [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617].map(d => ({ b: new Float32Array(Math.round(d * k)), i: 0, s: 0 }));
+      this.aps = [556, 441, 341, 225].map(d => ({ b: new Float32Array(Math.round(d * k)), i: 0 }));
+      this.rvOut = 0;
+      // misc state
+      this.genv = 0; this.gg = 1; this.ringPh = 0; this.tremPh = 0; this.hold = 0; this.dsc = 0; this.seed = 22222;
+      this.p = Object.assign({}, DEFAULTS);
+      this.set({});
+    }
+    set(np) {
+      const p = this.p = Object.assign({}, this.p, np), sr = this.sr;
+      this.psRatio = Math.pow(2, p.pitch / 12); this.psOn = Math.abs(p.pitch) > 0.01; this.psStep = 1 - this.psRatio;
+      this.low.shelf(false, sr, 250, p.bass - 0.8 * p.timbre);
+      this.high.shelf(true, sr, 3500, p.treble + p.timbre);
+      this.lpf.lowpass(sr, p.lp, 0.707); this.lpf2.lowpass(sr, p.lp, 0.707);
+      this.driveK = 1 + p.drive * 20; this.driveN = Math.tanh(this.driveK * 0.5);
+      this.levels = Math.pow(2, Math.max(2, Math.min(16, Math.round(p.bits))) - 1); this.dsN = Math.max(1, Math.round(p.ds));
+      this.crush = p.bits < 15.5 || this.dsN > 1;
+      this.vol = Math.pow(10, p.vol / 20);
+      this.echoD = Math.max(1, Math.min(this.eN - 2, Math.round(sr * p.echoMs / 1000)));
+      this.fb = Math.min(0.92, p.echoFb); this.rvFb = 0.72 + 0.26 * p.rev; this.rvIn = (1 - this.rvFb) * 1.6;
+      this.gAtk = 1 - Math.exp(-1 / (sr * 0.004)); this.gRel = 1 - Math.exp(-1 / (sr * 0.06));
+      this.gOpen = 1 - Math.exp(-1 / (sr * 0.005)); this.gClose = 1 - Math.exp(-1 / (sr * 0.08));
+    }
+    /** Seconds of tail needed after the input ends so effects can ring out. */
+    tailSeconds() {
+      let t = 0.1; const p = this.p;
+      if (p.revMix > 0) t = Math.max(t, 1.5 + 4 * p.rev);
+      if (p.echoMix > 0) t = Math.max(t, Math.min(6, p.echoMs / 1000 * (1 + 4 * p.echoFb)));
+      return t;
+    }
+    process(inp, out, n) {
+      const p = this.p, sr = this.sr;
+      const ps = this.ps, pm = this.psMask, W = this.psW;
+      for (let i = 0; i < n; i++) {
+        let x = inp[i];
+        // --- gate
+        if (p.gate > 0) {
+          const a = Math.abs(x); this.genv += (a - this.genv) * (a > this.genv ? this.gAtk : this.gRel);
+          const t = this.genv < p.gate * 0.08 ? 0.06 : 1; this.gg += (t - this.gg) * (t > this.gg ? this.gOpen : this.gClose); x *= this.gg;
+        }
+        // --- pitch
+        ps[this.psWr] = x;
+        if (this.psOn) {
+          let d1 = this.psD, d2 = d1 + W * 0.5; if (d2 >= W) d2 -= W;
+          const s1 = Math.sin(Math.PI * d1 / W), s2 = Math.sin(Math.PI * d2 / W);
+          let pos = this.psWr - d1, ix = Math.floor(pos), f = pos - ix;
+          const y1 = ps[ix & pm] + (ps[(ix + 1) & pm] - ps[ix & pm]) * f;
+          pos = this.psWr - d2; ix = Math.floor(pos); f = pos - ix;
+          const y2 = ps[ix & pm] + (ps[(ix + 1) & pm] - ps[ix & pm]) * f;
+          x = y1 * s1 * s1 + y2 * s2 * s2;
+          d1 += this.psStep; if (d1 < 0) d1 += W; else if (d1 >= W) d1 -= W; this.psD = d1;
+        }
+        this.psWr = (this.psWr + 1) & pm;
+        // --- eq
+        if (this.low.on) x = this.low.run(x);
+        if (this.high.on) x = this.high.run(x);
+        if (this.lpf.on) { x = this.lpf.run(x); x = this.lpf2.run(x); }
+        // --- character
+        if (p.drive > 0) x = Math.tanh(x * this.driveK) / this.driveN * 0.6;
+        if (this.crush) { if (this.dsc++ % this.dsN === 0) this.hold = Math.round(x * this.levels) / this.levels; x = this.hold; }
+        if (p.ring > 0) { const s = Math.sin(this.ringPh); this.ringPh += TAU * p.ring / sr; if (this.ringPh > TAU) this.ringPh -= TAU; x = x * (1 - p.ringMix) + x * s * p.ringMix; }
+        if (p.tremD > 0 && p.trem > 0) { x *= 1 - p.tremD * (0.5 + 0.5 * Math.sin(this.tremPh)); this.tremPh += TAU * p.trem / sr; if (this.tremPh > TAU) this.tremPh -= TAU; }
+        // --- chorus
+        this.cb[this.cW] = x;
+        if (p.chorus > 0) {
+          const l1 = sr * (0.016 + 0.006 * Math.sin(this.cPh)), l2 = sr * (0.024 + 0.005 * Math.sin(this.cPh * 1.37 + 1.57));
+          this.cPh += TAU * 0.9 / sr; if (this.cPh > 628) this.cPh -= 628;
+          let a = this.cW - l1, ia = Math.floor(a), fa = a - ia, b = this.cW - l2, ib = Math.floor(b), fb2 = b - ib;
+          const t1 = this.cb[ia & this.cMask] * (1 - fa) + this.cb[(ia + 1) & this.cMask] * fa;
+          const t2 = this.cb[ib & this.cMask] * (1 - fb2) + this.cb[(ib + 1) & this.cMask] * fb2;
+          x = x * (1 - 0.35 * p.chorus) + (t1 + t2) * 0.5 * 0.35 * p.chorus * 1.4;
+        }
+        this.cW = (this.cW + 1) & this.cMask;
+        // --- echo
+        if (p.echoMix > 0) {
+          const dl = this.eb[(this.eW - this.echoD) & this.eMask];
+          this.eb[this.eW] = x + dl * this.fb; this.eW = (this.eW + 1) & this.eMask;
+          x = x + dl * p.echoMix;
+        }
+        // --- reverb
+        if (p.revMix > 0) {
+          const inp2 = x * this.rvIn; let acc = 0;
+          for (let c = 0; c < 8; c++) {
+            const cm = this.combs[c], o = cm.b[cm.i]; cm.s = o * 0.8 + cm.s * 0.2; cm.b[cm.i] = inp2 + cm.s * this.rvFb;
+            if (++cm.i >= cm.b.length) cm.i = 0; acc += o;
+          }
+          acc *= 0.25;
+          for (let a = 0; a < 4; a++) {
+            const ap = this.aps[a], bo = ap.b[ap.i]; const inA = acc; acc = -0.5 * inA + bo; ap.b[ap.i] = inA + bo * 0.5; if (++ap.i >= ap.b.length) ap.i = 0;
+          }
+          x = x * (1 - 0.4 * p.revMix) + acc * p.revMix * 1.2;
+        }
+        // --- noise + volume + soft limiter
+        if (p.noise > 0) { this.seed ^= this.seed << 13; this.seed ^= this.seed >>> 17; this.seed ^= this.seed << 5; x += ((this.seed >>> 0) / 4294967296 - 0.5) * 2 * p.noise * 0.08; }
+        x *= this.vol;
+        const ax = Math.abs(x);
+        if (ax > 0.8) x = (x < 0 ? -1 : 1) * (0.8 + 0.2 * Math.tanh((ax - 0.8) / 0.2));
+        out[i] = x;
+      }
+    }
+  }
+  return { Chain, DEFAULTS };
+}
+
+
+const { Chain, DEFAULTS } = VXDSP();
+const workletSrc = 'const VXDSP=' + VXDSP.toString() + ';const {Chain}=VXDSP();' +
+  'class VXProc extends AudioWorkletProcessor{constructor(){super();this.c=new Chain(sampleRate);this.bypass=false;this.m=new Float32Array(128);' +
+  'this.port.onmessage=e=>{const d=e.data;if(d.p)this.c.set(d.p);if(d.bypass!==undefined)this.bypass=d.bypass;};}' +
+  'process(ins,outs){const i=ins[0],o=outs[0];if(!o||!o.length)return true;const n=o[0].length;' +
+  'if(!i||!i.length){for(let c=0;c<o.length;c++)o[c].fill(0);return true;}' +
+  'if(this.m.length<n)this.m=new Float32Array(n);const m=this.m,ch=i.length;' +
+  'for(let k=0;k<n;k++){let s=0;for(let c=0;c<ch;c++)s+=i[c][k];m[k]=s/ch;}' +
+  'if(this.bypass){for(let c=0;c<o.length;c++)for(let k=0;k<n;k++)o[c][k]=m[k];}' +
+  'else{this.c.process(m,o[0],n);for(let c=1;c<o.length;c++)o[c].set(o[0]);}return true;}}' +
+  'registerProcessor("vx-proc",VXProc);';
+const workerSrc = 'const VXDSP=' + VXDSP.toString() + ';const {Chain}=VXDSP();let c;' +
+  'onmessage=e=>{const m=e.data;if(m.t==="init"){c=new Chain(m.sr);c.set(m.p);postMessage({t:"ready",tail:c.tailSeconds()});}' +
+  'else{const x=m.x,n=x.length,y=new Float32Array(n);c.process(x,y,n);const o=new Int16Array(n);' +
+  'for(let i=0;i<n;i++){let v=y[i];v=v>1?1:v<-1?-1:v;o[i]=v<0?v*32768:v*32767;}postMessage({t:"done",o},[o.buffer]);}};';
+const blobURL = (src, type) => URL.createObjectURL(new Blob([src], { type: type || 'text/javascript' }));
+
+/* ================= Presets ================= */
+const CATS = [['all', 'همه'], ['fav', '⭐ محبوب'], ['girl', '👩 دختر و زن'], ['man', '🧔 مرد'], ['animal', '🐾 حیوان'], ['robot', '🤖 ربات و فضا'], ['fantasy', '🪄 فانتزی'], ['space', '🏛️ محیط'], ['comms', '📡 ارتباطات'], ['fx', '🎛️ افکت'], ['mine', '💾 من']];
+const PRESETS = [
+  /* ---- دختر و زن (بزرگسال) ---- */
+  ['woman_bright', 'girl', '👩', 'دختر روشن', { pitch: 4, timbre: 4, treble: 2 }],
+  ['girl_soft', 'girl', '🌸', 'دختر لطیف', { pitch: 3, timbre: 3.5, treble: 1, lp: 9000, revMix: 0.1, rev: 0.3 }],
+  ['girl_sweet', 'girl', '🍓', 'دختر شیرین', { pitch: 4.5, timbre: 4, treble: 3, chorus: 0.15 }],
+  ['girl_cool', 'girl', '😎', 'دختر خونسرد', { pitch: 2, timbre: 2, bass: 1, treble: 1, lp: 8000 }],
+  ['woman', 'girl', '👩‍💼', 'زن بالغ', { pitch: 2.5, timbre: 2.5 }],
+  ['woman_deep', 'girl', '🎤', 'زنانه بم', { pitch: -1.5, timbre: -1.5, bass: 3 }],
+  ['woman_mature', 'girl', '👩‍🏫', 'بانوی خوش‌صدا', { pitch: 1, timbre: 1.5, bass: 2, treble: 1 }],
+  ['girl_host', 'girl', '📺', 'گوینده‌ی خانم', { pitch: 2.5, timbre: 2.5, bass: 2, treble: 2, revMix: 0.1, rev: 0.3, gate: 0.2 }],
+  ['girl_whisper', 'girl', '🤫', 'نجواگر', { pitch: 3, timbre: 3, noise: 0.05, lp: 6500, treble: 3, revMix: 0.2, rev: 0.5, gate: 0.1 }],
+  ['girl_pop', 'girl', '🎶', 'خواننده‌ی پاپ', { pitch: 3.5, timbre: 3, treble: 3, chorus: 0.4, revMix: 0.3, rev: 0.6 }],
+  ['girl_diva', 'girl', '💃', 'دیوا', { pitch: 2, timbre: 3, bass: -1, treble: 2, revMix: 0.35, rev: 0.7, chorus: 0.25 }],
+  ['girl_phone', 'girl', '📞', 'خانم پشت تلفن', { pitch: 3, timbre: 3, bass: -8, lp: 3400, bits: 12 }],
+  ['girl_dream', 'girl', '🌙', 'رویایی', { pitch: 3.5, timbre: 3, chorus: 0.5, revMix: 0.45, rev: 0.8 }],
+  ['elder_f', 'girl', '👵', 'پیرزن', { pitch: 1, timbre: 1, trem: 5, tremD: 0.2, lp: 4800, treble: -3 }],
+  /* ---- مرد ---- */
+  ['man_young', 'man', '👨', 'مرد جوان', { pitch: -2.5, timbre: -2, bass: 2 }],
+  ['man_deep', 'man', '🧔', 'مردانه بم', { pitch: -5, timbre: -4, bass: 5 }],
+  ['man_giant', 'man', '🗿', 'غول‌صدا', { pitch: -9, timbre: -7, bass: 7, drive: 0.2 }],
+  ['narrator', 'man', '🎙️', 'گوینده‌ی آقا', { pitch: -1.5, timbre: -1, bass: 3, treble: 2, revMix: 0.12, rev: 0.3, gate: 0.2 }],
+  ['man_smooth', 'man', '☕', 'مرد گرم', { pitch: -2, timbre: -1, bass: 3, lp: 9000, revMix: 0.12, rev: 0.3 }],
+  ['man_rough', 'man', '💪', 'مرد خشن', { pitch: -3.5, timbre: -3, drive: 0.25, bass: 3 }],
+  ['man_trailer', 'man', '🎬', 'تیزر سینمایی', { pitch: -6, timbre: -4, bass: 6, revMix: 0.4, rev: 0.8, gate: 0.15 }],
+  ['man_radio', 'man', '📻', 'مجری رادیو', { pitch: -2, timbre: -1.5, bass: 4, treble: 1, revMix: 0.1, rev: 0.3, gate: 0.2 }],
+  ['man_phone', 'man', '📱', 'آقا پشت تلفن', { pitch: -2, bass: -9, lp: 3300, bits: 12, drive: 0.1 }],
+  ['man_sergeant', 'man', '🎖️', 'افسر', { pitch: -4, timbre: -3, drive: 0.3, echoMix: 0.15, echoMs: 120, echoFb: 0.3, treble: 2 }],
+  ['elder', 'man', '👴', 'پیرمرد', { pitch: -2.5, timbre: -1, trem: 5, tremD: 0.2, lp: 4800, treble: -3, noise: 0.01 }],
+  ['man_calm', 'man', '🧘', 'مرد آرام', { pitch: -1.5, timbre: -1, bass: 2, lp: 7000 }],
+  ['man_tenor', 'man', '🎼', 'تنور', { pitch: -1, chorus: 0.25, revMix: 0.25, rev: 0.6, treble: 1 }],
+  /* ---- حیوان ---- */
+  ['cat', 'animal', '🐱', 'گربه', { pitch: 9, timbre: 5, trem: 7, tremD: 0.25, treble: 3 }],
+  ['dog', 'animal', '🐕', 'سگ بزرگ', { pitch: -6, timbre: -4, drive: 0.3, bass: 4 }],
+  ['bird', 'animal', '🐦', 'پرنده', { pitch: 12, timbre: 6, trem: 9, tremD: 0.5, treble: 4 }],
+  ['lion', 'animal', '🦁', 'شیر', { pitch: -9, timbre: -5, bass: 8, drive: 0.4, revMix: 0.25, rev: 0.5 }],
+  ['mouse', 'animal', '🐭', 'موش', { pitch: 11, timbre: 8, treble: 4 }],
+  ['cow', 'animal', '🐮', 'گاو', { pitch: -7, timbre: -3, bass: 6, trem: 2.5, tremD: 0.2 }],
+  ['sheep', 'animal', '🐑', 'گوسفند', { pitch: 3, trem: 6.5, tremD: 0.55 }],
+  ['wolf', 'animal', '🐺', 'گرگ', { pitch: -5, timbre: -2, revMix: 0.5, rev: 0.7, drive: 0.15 }],
+  ['frog', 'animal', '🐸', 'قورباغه', { pitch: -4, timbre: 2, trem: 12, tremD: 0.6, drive: 0.2 }],
+  ['elephant', 'animal', '🐘', 'فیل', { pitch: -11, timbre: -5, bass: 8, revMix: 0.4, rev: 0.7, drive: 0.2 }],
+  ['bee', 'animal', '🐝', 'زنبور', { pitch: 5, ring: 90, ringMix: 0.5, treble: 3 }],
+  ['duck', 'animal', '🦆', 'اردک', { pitch: 3, lp: 3500, treble: 4, drive: 0.3, trem: 14, tremD: 0.4 }],
+  ['horse', 'animal', '🐴', 'اسب', { pitch: -3, trem: 8, tremD: 0.35, drive: 0.15, bass: 3 }],
+  ['snake', 'animal', '🐍', 'مار', { pitch: -3, treble: 9, noise: 0.12, chorus: 0.4, gate: 0.2 }],
+  ['bear', 'animal', '🐻', 'خرس', { pitch: -8, timbre: -5, bass: 7, drive: 0.35 }],
+  ['dolphin', 'animal', '🐬', 'دلفین', { pitch: 10, timbre: 4, trem: 16, tremD: 0.5, revMix: 0.4, rev: 0.7 }],
+  ['owl', 'animal', '🦉', 'جغد', { pitch: -1, trem: 3, tremD: 0.4, revMix: 0.5, rev: 0.8, lp: 3500 }],
+  /* ---- ربات و فضا ---- */
+  ['robot', 'robot', '🤖', 'ربات', { ring: 50, ringMix: 0.8, echoMix: 0.3, echoMs: 30, echoFb: 0.4, drive: 0.15 }],
+  ['cyborg', 'robot', '🦾', 'سایبورگ', { pitch: -3, ring: 30, ringMix: 0.6, drive: 0.25, echoMix: 0.35, echoMs: 55, echoFb: 0.35 }],
+  ['assistant', 'robot', '🛰️', 'دستیار مجازی', { pitch: 1, ring: 110, ringMix: 0.35, bits: 11, ds: 2, chorus: 0.3 }],
+  ['alien', 'robot', '👽', 'بیگانه', { pitch: 6, ring: 70, ringMix: 0.7, chorus: 0.6, revMix: 0.25, rev: 0.6 }],
+  ['astro', 'robot', '🚀', 'فضانورد', { lp: 3600, bass: -6, noise: 0.04, echoMix: 0.3, echoMs: 380, echoFb: 0.5, revMix: 0.5, rev: 0.9 }],
+  ['dark', 'robot', '🌑', 'فرمانده تاریک', { pitch: -6, timbre: -5, lp: 4000, drive: 0.2, revMix: 0.2, rev: 0.4, ring: 20, ringMix: 0.2 }],
+  ['old_android', 'robot', '📟', 'اندروید قدیمی', { ring: 80, ringMix: 0.9, bits: 7, ds: 3 }],
+  ['cold_ai', 'robot', '🧠', 'هوش مصنوعی سرد', { pitch: -1, ring: 140, ringMix: 0.25, lp: 7000, revMix: 0.15, rev: 0.4, echoMix: 0.15, echoMs: 60 }],
+  ['war_bot', 'robot', '⚙️', 'ربات جنگی', { pitch: -6, ring: 35, ringMix: 0.7, drive: 0.4, bass: 6 }],
+  ['kind_bot', 'robot', '🔧', 'ربات مهربان', { pitch: 3, ring: 200, ringMix: 0.3, chorus: 0.3, bits: 12, ds: 2 }],
+  ['bit8', 'robot', '🕹️', 'کامپیوتر ۸ بیتی', { bits: 5, ds: 6, lp: 6000, drive: 0.1 }],
+  ['mothership', 'robot', '🛸', 'سفینه‌ی مادر', { pitch: -4, revMix: 0.7, rev: 1, echoMix: 0.3, echoMs: 500, echoFb: 0.5, chorus: 0.4, ring: 15, ringMix: 0.2 }],
+  ['galaxy_msg', 'robot', '🌌', 'پیام از کهکشان', { pitch: 2, lp: 2600, noise: 0.07, echoMix: 0.35, echoMs: 700, echoFb: 0.55, revMix: 0.5, rev: 0.95, bass: -4 }],
+  /* ---- فانتزی ---- */
+  ['wizard', 'fantasy', '🧙', 'جادوگر', { pitch: -3, chorus: 0.35, revMix: 0.4, rev: 0.7 }],
+  ['fairy', 'fantasy', '🧚', 'پری', { pitch: 5, timbre: 4, chorus: 0.7, revMix: 0.5, rev: 0.8, treble: 3 }],
+  ['ghost', 'fantasy', '👻', 'روح', { pitch: -2, trem: 4, tremD: 0.3, lp: 3200, revMix: 0.8, rev: 1, echoMix: 0.35, echoMs: 300, echoFb: 0.5 }],
+  ['zombie', 'fantasy', '🧟', 'زامبی', { pitch: -5, trem: 3, tremD: 0.3, drive: 0.35, bits: 10, ds: 2, lp: 4500 }],
+  ['monster', 'fantasy', '👹', 'هیولا', { pitch: -10, timbre: -6, bass: 8, drive: 0.5, revMix: 0.2 }],
+  ['demon', 'fantasy', '😈', 'اهریمن', { pitch: -12, ring: 25, ringMix: 0.35, drive: 0.6, revMix: 0.35, rev: 0.7, chorus: 0.4 }],
+  ['dragon', 'fantasy', '🐉', 'اژدها', { pitch: -8, timbre: -6, bass: 8, drive: 0.4, revMix: 0.4, rev: 0.8, trem: 3, tremD: 0.2 }],
+  ['vampire', 'fantasy', '🧛', 'خون‌آشام', { pitch: -3, timbre: -2, bass: 3, revMix: 0.35, rev: 0.7, lp: 6000, chorus: 0.2 }],
+  ['ogre', 'fantasy', '👺', 'غول', { pitch: -7, timbre: -4, drive: 0.3, bass: 5, trem: 4, tremD: 0.2 }],
+  ['elf', 'fantasy', '🧝', 'الف', { pitch: 4, timbre: 3.5, chorus: 0.5, revMix: 0.4, rev: 0.8, treble: 3 }],
+  ['genie', 'fantasy', '🧞', 'غول چراغ جادو', { pitch: -4, echoMix: 0.3, echoMs: 180, echoFb: 0.5, revMix: 0.6, rev: 0.9, chorus: 0.4 }],
+  ['witch', 'fantasy', '🔮', 'ساحره', { pitch: 3, trem: 6, tremD: 0.25, drive: 0.2, revMix: 0.3, rev: 0.6, lp: 5500 }],
+  ['skeleton', 'fantasy', '💀', 'اسکلت', { pitch: -2, bits: 9, ds: 2, lp: 4000, echoMix: 0.3, echoMs: 150, echoFb: 0.4, revMix: 0.3, rev: 0.7 }],
+  ['angel', 'fantasy', '😇', 'فرشته', { pitch: 3, chorus: 0.8, revMix: 0.7, rev: 0.95, treble: 3 }],
+  /* ---- محیط ---- */
+  ['cave', 'space', '🕳️', 'غار', { revMix: 0.75, rev: 0.95, echoMix: 0.2, echoMs: 220, echoFb: 0.4 }],
+  ['tunnel', 'space', '🚇', 'تونل', { echoMix: 0.5, echoMs: 95, echoFb: 0.55, revMix: 0.35, rev: 0.5, bass: 2 }],
+  ['underwater', 'space', '🌊', 'زیر آب', { lp: 1100, chorus: 0.7, trem: 2.2, tremD: 0.3, revMix: 0.3, rev: 0.6 }],
+  ['stadium', 'space', '🏟️', 'ورزشگاه', { revMix: 0.55, rev: 0.9, echoMix: 0.35, echoMs: 420, echoFb: 0.35, drive: 0.1 }],
+  ['bath', 'space', '🚿', 'حمام', { revMix: 0.55, rev: 0.4, treble: 3 }],
+  ['hall', 'space', '⛪', 'تالار بزرگ', { revMix: 0.7, rev: 0.98, treble: 1 }],
+  ['mountain', 'space', '⛰️', 'کوهستان', { echoMix: 0.45, echoMs: 650, echoFb: 0.45, revMix: 0.3, rev: 0.8 }],
+  ['forest', 'space', '🌲', 'جنگل', { revMix: 0.4, rev: 0.7, lp: 7000, chorus: 0.2 }],
+  ['alley', 'space', '🌃', 'کوچه‌ی خالی', { echoMix: 0.3, echoMs: 140, echoFb: 0.35, revMix: 0.3, rev: 0.5, lp: 8000 }],
+  ['small_room', 'space', '🛋️', 'اتاق کوچک', { revMix: 0.18, rev: 0.15, bass: 1 }],
+  ['behind_wall', 'space', '🧱', 'پشت دیوار', { lp: 900, bass: 3, revMix: 0.2, rev: 0.3, drive: 0.05 }],
+  ['well', 'space', '⛲', 'چاه عمیق', { echoMix: 0.5, echoMs: 210, echoFb: 0.6, revMix: 0.6, rev: 0.9, lp: 3500 }],
+  ['airport', 'space', '🛫', 'فرودگاه', { lp: 5000, bass: -5, echoMix: 0.3, echoMs: 350, echoFb: 0.3, revMix: 0.5, rev: 0.9, drive: 0.1, noise: 0.02 }],
+  /* ---- ارتباطات ---- */
+  ['radio', 'comms', '📻', 'رادیو قدیمی', { lp: 3400, bass: -9, drive: 0.25, noise: 0.03, bits: 12 }],
+  ['phone', 'comms', '☎️', 'تلفن', { bass: -12, lp: 3200, bits: 10, drive: 0.15, treble: 2 }],
+  ['walkie', 'comms', '📡', 'بی‌سیم', { lp: 2800, bass: -10, drive: 0.5, noise: 0.06, bits: 9, ds: 2, gate: 0.3 }],
+  ['mega', 'comms', '📣', 'بلندگو', { drive: 0.6, bass: -6, treble: 3, lp: 5000, echoMix: 0.2, echoMs: 120, echoFb: 0.3 }],
+  ['badnet', 'comms', '📶', 'اینترنت ضعیف', { bits: 6, ds: 5, noise: 0.04, lp: 4000, gate: 0.5 }],
+  ['satcall', 'comms', '🛰', 'تماس ماهواره‌ای', { lp: 3000, bass: -8, echoMix: 0.3, echoMs: 550, echoFb: 0.4, noise: 0.05, bits: 11, ds: 2 }],
+  ['cheap_mic', 'comms', '🎙', 'میکروفن ارزان', { lp: 5500, bass: -7, drive: 0.2, noise: 0.02, treble: 2 }],
+  ['voice_msg', 'comms', '💬', 'پیام صوتی', { bass: -6, lp: 6500, bits: 12, gate: 0.25 }],
+  ['intercom', 'comms', '🔔', 'اینترکام', { lp: 3600, bass: -10, drive: 0.4, noise: 0.03 }],
+  ['old_recorder', 'comms', '🎞️', 'ضبط‌صوت قدیمی', { lp: 3800, bass: -4, trem: 0.8, tremD: 0.1, noise: 0.05, bits: 11, drive: 0.15 }],
+  ['announce', 'comms', '🔊', 'اعلان عمومی', { lp: 4200, bass: -6, echoMix: 0.35, echoMs: 300, echoFb: 0.4, revMix: 0.4, rev: 0.8, drive: 0.25 }],
+  ['police', 'comms', '🚓', 'بی‌سیم پلیس', { lp: 2700, bass: -11, drive: 0.6, noise: 0.07, bits: 9, gate: 0.4 }],
+  ['bad_phones', 'comms', '🎧', 'هدفون خراب', { lp: 2200, bass: -3, noise: 0.06, drive: 0.3, gate: 0.3 }],
+  /* ---- افکت ---- */
+  ['lofi', 'fx', '📼', 'لوفای', { bits: 8, ds: 4, lp: 4500, noise: 0.04, drive: 0.1 }],
+  ['studio', 'fx', '🎚️', 'استودیویی', { bass: 2, treble: 2.5, revMix: 0.15, rev: 0.3, gate: 0.15 }],
+  ['echo', 'fx', '🔁', 'اکو', { echoMix: 0.55, echoMs: 280, echoFb: 0.5 }],
+  ['tremolo', 'fx', '〰️', 'ترمولو', { trem: 6, tremD: 0.6 }],
+  ['oct_dn', 'fx', '⬇️', 'یک اکتاو پایین', { pitch: -12 }],
+  ['oct_up', 'fx', '⬆️', 'یک اکتاو بالا', { pitch: 12 }],
+  ['choir', 'fx', '🎭', 'گروه‌خوان', { chorus: 1, revMix: 0.2, rev: 0.5 }],
+  ['helium', 'fx', '🎈', 'هلیومی', { pitch: 8, timbre: 7, treble: 3 }],
+  ['disco', 'fx', '🪩', 'دیسکو', { chorus: 0.6, echoMix: 0.35, echoMs: 180, echoFb: 0.5, revMix: 0.3, rev: 0.6, treble: 2 }],
+  ['shaky', 'fx', '🫨', 'لرزان', { trem: 12, tremD: 0.8 }],
+  ['gramophone', 'fx', '📀', 'گرامافون', { lp: 3000, bass: -6, noise: 0.06, bits: 10, drive: 0.3 }],
+  ['bitcrusher', 'fx', '🪫', 'بیت‌کراشر', { bits: 4, ds: 8 }],
+  ['heavy', 'fx', '💥', 'اغتشاش شدید', { drive: 1, bass: 3, lp: 6000 }],
+  ['fifth_up', 'fx', '🔼', 'پنجم بالا', { pitch: 7 }],
+  ['fifth_dn', 'fx', '🔽', 'پنجم پایین', { pitch: -7 }]
+].map(([id, cat, em, name, p]) => ({ id, cat, em, name, p: Object.assign({}, DEFAULTS, p) }));
+
+const SCHEMA = [
+  ['🎤 صدا و زیر و بمی', [['pitch', 'زیر و بمی', -12, 12, 0.5, v => (v > 0 ? '+' : '') + v + ' نیم‌پرده'], ['timbre', 'رنگ صدا (فرمنت)', -12, 12, 0.5, v => (v > 0 ? '+' : '') + v]]],
+  ['🎚️ تعادل (EQ)', [['bass', 'بم', -12, 12, 0.5, v => v + ' dB'], ['treble', 'زیر', -12, 12, 0.5, v => v + ' dB'], ['lp', 'فیلتر بالابر', 500, 20000, 100, v => v >= 19000 ? 'خاموش' : v + ' Hz']]],
+  ['🔥 رنگ و کاراکتر', [['drive', 'اغتشاش', 0, 1, 0.01, pc], ['bits', 'عمق بیت', 4, 16, 1, v => v >= 16 ? 'خاموش' : v + ' bit'], ['ds', 'کاهش نمونه', 1, 16, 1, v => v <= 1 ? 'خاموش' : '÷' + v], ['ring', 'ربات‌سازی (Hz)', 0, 400, 1, v => v ? v + ' Hz' : 'خاموش'], ['ringMix', 'شدت ربات', 0, 1, 0.01, pc], ['trem', 'سرعت ترمولو', 0, 20, 0.1, v => v ? v + ' Hz' : 'خاموش'], ['tremD', 'عمق ترمولو', 0, 1, 0.01, pc]]],
+  ['🌌 فضا و اکو', [['chorus', 'کُر', 0, 1, 0.01, pc], ['echoMix', 'اکو', 0, 1, 0.01, pc], ['echoMs', 'فاصله‌ی اکو', 40, 900, 5, v => v + ' ms'], ['echoFb', 'تکرار اکو', 0, 0.9, 0.01, pc], ['revMix', 'ریورب', 0, 1, 0.01, pc], ['rev', 'اندازه‌ی فضا', 0, 1, 0.01, pc]]],
+  ['🧹 پاک‌سازی و خروجی', [['gate', 'حذف نویز (گیت)', 0, 1, 0.01, v => v ? pc(v) : 'خاموش'], ['noise', 'نویز اضافه', 0, 1, 0.01, pc], ['vol', 'بلندی خروجی', -12, 9, 0.5, v => (v > 0 ? '+' : '') + v + ' dB']]]
+];
+function pc(v) { return Math.round(v * 100) + '%'; }
+
+/* ================= State ================= */
+const audio = new Audio(); audio.preload = 'auto';
+const S = { file: null, url: null, dur: 0, peaks: null, isWav: false, wav: null, preset: null, cur: Object.assign({}, DEFAULTS), base: Object.assign({}, DEFAULTS), ab: 'fx', custom: store.get('vx_custom', []), fav: store.get('vx_fav', []), cat: 'all', q: '' };
+let ctx, node, srcNode, analyser, outGain, ready = false, liveFailed = false, level = 0;
+
+/* ================= Live audio graph ================= */
+async function ensureAudio() {
+  if (ready) { if (ctx.state === 'suspended') await ctx.resume(); return true; }
+  if (liveFailed) return false;
+  try {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let useWorklet = !!ctx.audioWorklet;
+    if (useWorklet) {
+      try {
+        // data: URL works on file:// pages too (blob: modules are blocked there)
+        await ctx.audioWorklet.addModule('data:text/javascript;base64,' + btoa(unescape(encodeURIComponent(workletSrc))));
+        node = new AudioWorkletNode(ctx, 'vx-proc', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2] });
+      } catch (e) { useWorklet = false; }
+    }
+    if (!useWorklet) node = makeScriptNode(); // compatibility path (main thread)
+    srcNode = ctx.createMediaElementSource(audio);
+    analyser = ctx.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.8;
+    outGain = ctx.createGain(); outGain.gain.value = +$('#vol').value;
+    srcNode.connect(node); node.connect(analyser); analyser.connect(outGain); outGain.connect(ctx.destination);
+    node.port.postMessage({ p: S.cur, bypass: S.ab === 'orig' });
+    ready = true; await ctx.resume(); return true;
+  } catch (e) {
+    liveFailed = true; $('#b-live').textContent = 'پیش‌نمایش زنده در این مرورگر نیست'; $('#b-live').style.color = 'var(--warn)';
+    toast('پیش‌نمایش زنده پشتیبانی نمی‌شود؛ پردازش و ذخیره همچنان کار می‌کند.', 'err');
+    return false;
+  }
+}
+/** Same DSP chain on the main thread through ScriptProcessor, for browsers without AudioWorklet. */
+function makeScriptNode() {
+  const chain = new Chain(ctx.sampleRate); let bypass = false; chain.set(S.cur);
+  const sp = ctx.createScriptProcessor(2048, 2, 2);
+  sp.onaudioprocess = e => {
+    const a = e.inputBuffer, o = e.outputBuffer, n = a.length, m = new Float32Array(n), ch = a.numberOfChannels;
+    for (let c = 0; c < ch; c++) { const d = a.getChannelData(c); for (let i = 0; i < n; i++) m[i] += d[i] / ch; }
+    const y = o.getChannelData(0); if (bypass) y.set(m); else chain.process(m, y, n);
+    for (let c = 1; c < o.numberOfChannels; c++) o.getChannelData(c).set(y);
+  };
+  sp.port = { postMessage: d => { if (d.p) chain.set(d.p); if (d.bypass !== undefined) bypass = d.bypass; } };
+  return sp;
+}
+let pushQ = false;
+function pushParams() { if (!node || pushQ) return; pushQ = true; requestAnimationFrame(() => { pushQ = false; node.port.postMessage({ p: S.cur }); }); }
+
+/* ================= Presets UI ================= */
+function allPresets() { return PRESETS.concat(S.custom.map(c => ({ id: c.id, cat: 'mine', em: '💾', name: c.name, p: Object.assign({}, DEFAULTS, c.p), mine: true }))); }
+function renderCats() {
+  $('#cats').innerHTML = CATS.map(([id, n]) => '<button data-c="' + id + '" class="' + (S.cat === id ? 'on' : '') + '">' + n + '</button>').join('');
+}
+function renderPresets() {
+  const q = S.q.trim().toLowerCase();
+  let list = allPresets().filter(p => (S.cat === 'all' || (S.cat === 'fav' ? S.fav.includes(p.id) : p.cat === S.cat)) && (!q || p.name.toLowerCase().includes(q) || p.id.includes(q)));
+  $('#pcount').textContent = list.length + ' صدا';
+  $('#presets').innerHTML = list.length ? list.map(p =>
+    '<div class="pc' + (S.preset === p.id ? ' on' : '') + '" role="button" tabindex="0" data-id="' + p.id + '"><span class="em">' + p.em + '</span><b>' + p.name + '</b>' +
+    '<small>' + (p.mine ? 'صدای من' : (CATS.find(c => c[0] === p.cat) || [0, ''])[1].replace(/^\S+\s/, '')) + '</small>' +
+    (p.mine ? '<span class="del" data-del="' + p.id + '" title="حذف"><svg class="i"><use href="#i-x"/></svg></span>' : '') +
+    '<span class="fav' + (S.fav.includes(p.id) ? ' on' : '') + '" data-fav="' + p.id + '" title="محبوب"><svg class="i"><use href="#i-star"/></svg></span></div>').join('')
+    : '<div class="none">' + (S.cat === 'fav' ? 'هنوز صدای محبوبی نداری؛ ستاره‌ی هر کارت را بزن.' : S.cat === 'mine' ? 'با «ذخیره به‌عنوان صدای من» صدای شخصی بساز.' : 'موردی پیدا نشد.') + '</div>';
+}
+function selectPreset(id) {
+  const p = allPresets().find(x => x.id === id); if (!p) return;
+  S.preset = id; S.base = Object.assign({}, p.p); S.cur = Object.assign({}, p.p);
+  store.set('vx_last', id); syncSliders(); pushParams(); renderPresets(); updateNow(); updatePlan();
+}
+function updateNow() {
+  const p = allPresets().find(x => x.id === S.preset);
+  const mod = S.preset && JSON.stringify(S.cur) !== JSON.stringify(S.base);
+  $('#now').innerHTML = p ? '<span>افکت فعال:</span><b>' + p.em + ' ' + p.name + (mod ? ' (ویرایش‌شده)' : '') + '</b>' : '<span>یک صدا از کتابخانه انتخاب کن</span>';
+}
+$('#cats').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.cat = b.dataset.c; renderCats(); renderPresets(); });
+$('#q').addEventListener('input', e => { S.q = e.target.value; renderPresets(); });
+$('#presets').addEventListener('click', e => {
+  const f = e.target.closest('[data-fav]'); if (f) { const id = f.dataset.fav; S.fav = S.fav.includes(id) ? S.fav.filter(x => x !== id) : S.fav.concat(id); store.set('vx_fav', S.fav); renderPresets(); e.stopPropagation(); return; }
+  const d = e.target.closest('[data-del]'); if (d) { S.custom = S.custom.filter(c => c.id !== d.dataset.del); store.set('vx_custom', S.custom); if (S.preset === d.dataset.del) S.preset = null; renderPresets(); updateNow(); return; }
+  const c = e.target.closest('.pc'); if (c) selectPreset(c.dataset.id);
+});
+$('#presets').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('pc')) { e.preventDefault(); selectPreset(e.target.dataset.id); } });
+
+/* ================= Studio sliders ================= */
+const sliderEls = {};
+(function buildStudio() {
+  $('#studio').innerHTML = SCHEMA.map(([title, items], gi) =>
+    '<details' + (gi < 1 ? ' open' : '') + '><summary>' + title + '</summary><div class="rows">' + items.map(([k, label, mn, mx, st]) =>
+      '<div class="row"><label for="s_' + k + '">' + label + '</label><output id="o_' + k + '"></output><input type="range" id="s_' + k + '" min="' + mn + '" max="' + mx + '" step="' + st + '"></div>').join('') + '</div></details>').join('');
+  SCHEMA.forEach(([, items]) => items.forEach(([k, , mn, mx, st, fmt]) => {
+    const el = $('#s_' + k), out = $('#o_' + k); sliderEls[k] = { el, out, mn, mx, fmt };
+    el.addEventListener('input', () => { S.cur[k] = +el.value; paint(k); pushParams(); updateNow(); });
+  }));
+})();
+function paint(k) { const s = sliderEls[k]; const v = +s.el.value; s.out.textContent = s.fmt(v); s.el.style.setProperty('--p', ((v - s.mn) / (s.mx - s.mn) * 100) + '%'); }
+function syncSliders() { for (const k in sliderEls) { sliderEls[k].el.value = S.cur[k]; paint(k); } }
+$('#btnReset').onclick = () => { S.cur = Object.assign({}, S.base); syncSliders(); pushParams(); updateNow(); toast('به تنظیم اصلی پریست برگشت'); };
+$('#btnSaveAs').onclick = () => { $('#saveRow').classList.toggle('show'); $('#saveName').focus(); };
+$('#saveOk').onclick = () => {
+  const n = $('#saveName').value.trim(); if (!n) { toast('یک نام بنویس', 'err'); return; }
+  const id = 'my_' + Date.now(); S.custom.push({ id, name: n, p: Object.assign({}, S.cur) }); store.set('vx_custom', S.custom);
+  $('#saveName').value = ''; $('#saveRow').classList.remove('show'); S.cat = 'mine'; renderCats(); selectPreset(id); toast('صدای تو ذخیره شد ✨', 'ok');
+};
+
+/* ================= File loading ================= */
+const wavebox = $('#wavebox'), waveC = $('#wave'), wctx = waveC.getContext('2d');
+let waveBase = null, waveHi = null, loadToken = 0;
+
+async function loadFile(file) {
+  if (!file) return;
+  const token = ++loadToken;
+  audio.pause(); setPlayIcon(false);
+  if (S.url) URL.revokeObjectURL(S.url);
+  S.file = file; S.url = URL.createObjectURL(file); S.peaks = null; S.wav = null; S.dur = 0;
+  $('#fname').textContent = file.name || 'recording'; $('#fmeta').textContent = fmtB(file.size) + '  |  در حال بارگذاری…';
+  $('#emptyHint').style.display = 'none'; $('#btnExport').disabled = true; $('#result').classList.remove('show');
+  $('#waveMsg').style.display = 'grid'; $('#waveMsg').textContent = 'در حال تحلیل شکل موج…'; drawWave();
+  audio.src = S.url; audio.load();
+  await new Promise(r => { const done = () => { audio.removeEventListener('loadedmetadata', done); audio.removeEventListener('error', done); r(); }; audio.addEventListener('loadedmetadata', done); audio.addEventListener('error', done); });
+  if (token !== loadToken) return;
+  if (audio.error) { toast('این فایل قابل پخش نیست.', 'err'); $('#fmeta').textContent = 'فرمت پشتیبانی نمی‌شود'; $('#waveMsg').textContent = '—'; return; }
+  S.dur = await getDuration();
+  S.isWav = false;
+  try { S.wav = await WavReader.open(file); S.isWav = !!S.wav; } catch (e) { S.wav = null; }
+  $('#tDur').textContent = fmtT(S.dur); $('#fmeta').textContent = [fmtT(S.dur), fmtB(file.size)].concat(S.wav ? ['WAV ' + Math.round(S.wav.sr / 100) / 10 + ' kHz'] : []).join('  |  ');
+  $('#btnExport').disabled = false; updatePlan();
+  computePeaks(token);
+  ensureAudio();
+}
+async function getDuration() {
+  if (isFinite(audio.duration) && audio.duration > 0) return audio.duration;
+  // MediaRecorder files report Infinity: force the browser to compute the real length
+  await new Promise(r => { const t = setTimeout(r, 3000); audio.addEventListener('durationchange', function f() { if (isFinite(audio.duration)) { audio.removeEventListener('durationchange', f); clearTimeout(t); r(); } }); audio.currentTime = 1e7; });
+  const d = isFinite(audio.duration) ? audio.duration : (S.recSecs || 0); audio.currentTime = 0; return d;
+}
+$('#btnOpen').onclick = () => $('#file').click();
+$('#file').onchange = e => { loadFile(e.target.files[0]); e.target.value = ''; };
+['dragenter', 'dragover'].forEach(ev => window.addEventListener(ev, e => { e.preventDefault(); $('#drop').classList.add('show'); }));
+['dragleave', 'drop'].forEach(ev => window.addEventListener(ev, e => { e.preventDefault(); if (ev === 'drop' || e.target === document.documentElement || !e.relatedTarget) $('#drop').classList.remove('show'); }));
+window.addEventListener('drop', e => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) loadFile(f); });
+
+/* ---- WAV streaming reader (any length, never loads the whole file) ---- */
+const WavReader = {
+  async open(file) {
+    const head = await file.slice(0, Math.min(file.size, 1 << 20)).arrayBuffer(); const dv = new DataView(head);
+    const tag = (o) => String.fromCharCode(dv.getUint8(o), dv.getUint8(o + 1), dv.getUint8(o + 2), dv.getUint8(o + 3));
+    if (head.byteLength < 44 || tag(0) !== 'RIFF' || tag(8) !== 'WAVE') return null;
+    let pos = 12, fmt = null, off = -1, size = 0;
+    while (pos + 8 <= head.byteLength) {
+      const id = tag(pos), sz = dv.getUint32(pos + 4, true), body = pos + 8;
+      if (id === 'fmt ') {
+        let f = dv.getUint16(body, true); const ch = dv.getUint16(body + 2, true), sr = dv.getUint32(body + 4, true), bits = dv.getUint16(body + 14, true);
+        if (f === 0xFFFE && sz >= 26) f = dv.getUint16(body + 24, true);
+        fmt = { f, ch, sr, bits };
+      } else if (id === 'data') { off = body; size = Math.min(sz, file.size - body); if (sz === 0 || sz === 0xFFFFFFFF) size = file.size - body; break; }
+      pos = body + sz + (sz & 1);
+    }
+    if (!fmt || off < 0) return null;
+    const okPcm = fmt.f === 1 && [8, 16, 24, 32].includes(fmt.bits), okF = fmt.f === 3 && fmt.bits === 32;
+    if (!(okPcm || okF) || fmt.ch < 1 || fmt.ch > 8 || fmt.sr < 4000) return null;
+    const block = fmt.ch * (fmt.bits >> 3);
+    return Object.assign({ file, off, block, frames: Math.floor(size / block), async readMono(start, count) { return WavReader.read(this, start, count); } }, fmt);
+  },
+  async read(w, start, count) {
+    count = Math.max(0, Math.min(count, w.frames - start));
+    const ab = await w.file.slice(w.off + start * w.block, w.off + (start + count) * w.block).arrayBuffer();
+    const out = new Float32Array(count), ch = w.ch;
+    if (w.f === 1 && w.bits === 16) {
+      const a = new Int16Array(ab, 0, count * ch);
+      if (ch === 1) for (let i = 0; i < count; i++) out[i] = a[i] / 32768;
+      else for (let i = 0, p = 0; i < count; i++) { let s = 0; for (let c = 0; c < ch; c++) s += a[p++]; out[i] = s / ch / 32768; }
+      return out;
+    }
+    const dv = new DataView(ab), bps = w.bits >> 3; let p = 0;
+    for (let i = 0; i < count; i++) {
+      let s = 0;
+      for (let c = 0; c < ch; c++, p += bps) {
+        if (w.f === 3) s += dv.getFloat32(p, true);
+        else if (w.bits === 8) s += (dv.getUint8(p) - 128) / 128;
+        else if (w.bits === 24) s += ((dv.getUint8(p) | (dv.getUint8(p + 1) << 8) | (dv.getInt8(p + 2) << 16)) / 8388608);
+        else s += dv.getInt32(p, true) / 2147483648;
+      }
+      out[i] = s / ch;
+    }
+    return out;
+  }
+};
+
+/* ---- decode with a memory budget (long compressed files) ---- */
+function pickRate(dur, budgetBytes, cap) {
+  const raw = Math.floor(budgetBytes / (Math.max(1, dur) * 2 * 4));
+  const rates = [48000, 44100, 32000, 22050, 16000, 12000, 8000];
+  const r = rates.find(x => x <= raw && x <= cap);
+  return r || 0;
+}
+async function decodeBudget(file, dur, budget, cap) {
+  const rate = pickRate(dur, budget, cap);
+  if (!rate) throw new Error('too_long');
+  const oc = new OfflineAudioContext(1, 1, rate);
+  const buf = await oc.decodeAudioData(await file.arrayBuffer());
+  return buf;
+}
+async function computePeaks(token) {
+  const B = 1200; let peaks = new Float32Array(B);
+  try {
+    if (S.wav) {
+      const w = S.wav, per = w.frames / B, win = 4096;
+      for (let b = 0; b < B; b++) {
+        let m = 0; for (const f of [0.25, 0.75]) { const st = Math.floor(b * per + per * f); const x = await WavReader.read(w, st, Math.min(win, Math.max(1, Math.floor(per / 2)))); for (let i = 0; i < x.length; i++) { const a = Math.abs(x[i]); if (a > m) m = a; } }
+        peaks[b] = m; if (b % 100 === 0) { await nextFrame(); if (token !== loadToken) return; }
+      }
+    } else {
+      const buf = await decodeBudget(S.file, S.dur || 60, 190e6, 8000);
+      if (token !== loadToken) return;
+      const chs = []; for (let c = 0; c < buf.numberOfChannels; c++) chs.push(buf.getChannelData(c));
+      const per = buf.length / B, step = Math.max(1, Math.floor(per / 96));
+      for (let b = 0; b < B; b++) { let m = 0; const a0 = Math.floor(b * per), a1 = Math.min(buf.length, Math.floor((b + 1) * per)); for (let i = a0; i < a1; i += step) for (const d of chs) { const v = Math.abs(d[i]); if (v > m) m = v; } peaks[b] = m; }
+    }
+    let mx = 0; for (const v of peaks) if (v > mx) mx = v; mx = mx || 1; for (let i = 0; i < B; i++) peaks[i] = Math.pow(peaks[i] / mx, 0.7);
+    S.peaks = peaks; $('#waveMsg').style.display = 'none'; buildWave();
+  } catch (e) { $('#waveMsg').style.display = 'grid'; $('#waveMsg').textContent = 'شکل موج برای این فایل ساخته نشد (پخش و پردازش عادی است)'; }
+}
+function sizeCanvas(c) { const r = c.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); const w = Math.round(r.width * d), h = Math.round(r.height * d); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; return true; } return false; }
+function buildWave() {
+  sizeCanvas(waveC); const W = waveC.width, H = waveC.height; if (!S.peaks) return;
+  const mk = (color) => { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); const bw = Math.max(2, Math.round(W / 190)), gap = Math.max(1, Math.round(bw * 0.55)), n = Math.floor(W / (bw + gap)); const fill = typeof color === 'function' ? color(g) : color; g.fillStyle = fill;
+    for (let i = 0; i < n; i++) { const a = Math.floor(i * S.peaks.length / n), b = Math.max(a + 1, Math.floor((i + 1) * S.peaks.length / n)); let m = 0; for (let k = a; k < b; k++) m = Math.max(m, S.peaks[k]); const h = Math.max(3, m * H * 0.86), x = i * (bw + gap), y = (H - h) / 2; g.beginPath(); (g.roundRect ? g.roundRect(x, y, bw, h, bw / 2) : g.rect(x, y, bw, h)); g.fill(); }
+    return c; };
+  waveBase = mk('rgba(255,255,255,.22)');
+  waveHi = mk(g => { const gr = g.createLinearGradient(0, 0, W, 0); gr.addColorStop(0, '#8b6cff'); gr.addColorStop(.6, '#22d3ee'); gr.addColorStop(1, '#ff6fa8'); return gr; });
+}
+function drawWave() {
+  if (sizeCanvas(waveC)) buildWave();
+  const W = waveC.width, H = waveC.height; wctx.clearRect(0, 0, W, H);
+  if (!S.peaks || !waveBase) return;
+  const prog = S.dur ? clamp(audio.currentTime / S.dur, 0, 1) : 0, x = prog * W;
+  wctx.drawImage(waveBase, 0, 0);
+  wctx.save(); wctx.beginPath(); wctx.rect(0, 0, x, H); wctx.clip(); wctx.drawImage(waveHi, 0, 0); wctx.restore();
+  wctx.fillStyle = '#fff'; wctx.shadowColor = '#8b6cff'; wctx.shadowBlur = 14; wctx.fillRect(Math.round(x) - 1, 0, 2, H); wctx.shadowBlur = 0;
+}
+let seeking = false;
+function seekFrom(e) { const r = wavebox.getBoundingClientRect(); const p = clamp((e.clientX - r.left) / r.width, 0, 1); if (S.dur) audio.currentTime = p * S.dur; }
+wavebox.addEventListener('pointerdown', e => { if (!S.file) return; seeking = true; wavebox.setPointerCapture(e.pointerId); seekFrom(e); });
+wavebox.addEventListener('pointermove', e => { if (seeking) seekFrom(e); });
+wavebox.addEventListener('pointerup', () => seeking = false);
+
+/* ================= Transport ================= */
+function setPlayIcon(p) { $('#playIcon').firstElementChild.setAttribute('href', p ? '#i-pause' : '#i-play'); $('#btnPlay').setAttribute('aria-label', p ? 'توقف' : 'پخش'); }
+async function togglePlay() {
+  if (!S.file) { $('#file').click(); return; }
+  await ensureAudio();
+  if (audio.paused) { try { await audio.play(); } catch (e) { toast('پخش ممکن نشد', 'err'); } } else audio.pause();
+}
+audio.addEventListener('play', () => setPlayIcon(true)); audio.addEventListener('pause', () => setPlayIcon(false)); audio.addEventListener('ended', () => setPlayIcon(false));
+$('#btnPlay').onclick = togglePlay;
+$('#btnBack').onclick = () => { audio.currentTime = Math.max(0, audio.currentTime - 10); };
+$('#btnFwd').onclick = () => { audio.currentTime = Math.min(S.dur || 1e9, audio.currentTime + 10); };
+$('#speed').onchange = e => { audio.playbackRate = +e.target.value; audio.preservesPitch = true; audio.mozPreservesPitch = true; audio.webkitPreservesPitch = true; };
+$('#vol').oninput = e => { if (outGain) outGain.gain.value = +e.target.value; else audio.volume = +e.target.value; };
+function setAB(m) { S.ab = m; document.querySelectorAll('#ab button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); if (node) node.port.postMessage({ bypass: m === 'orig' }); }
+$('#ab').onclick = e => { const b = e.target.closest('button'); if (b) setAB(b.dataset.m); };
+window.addEventListener('keydown', e => {
+  if (/INPUT|SELECT|TEXTAREA/.test((e.target.tagName || '')) && e.target.type !== 'range') return;
+  if (e.code === 'Space' && !e.target.closest('button')) { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowLeft' && e.target.type !== 'range') audio.currentTime = Math.max(0, audio.currentTime - 5);
+  else if (e.key === 'ArrowRight' && e.target.type !== 'range') audio.currentTime = Math.min(S.dur || 1e9, audio.currentTime + 5);
+  else if (e.key.toLowerCase() === 'a' && !e.ctrlKey && !e.metaKey) setAB(S.ab === 'fx' ? 'orig' : 'fx');
+});
+
+/* ================= Recording ================= */
+let rec = null, recChunks = [], recT0 = 0, recTimer = 0, recStream = null;
+$('#btnRec').onclick = async () => {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  try {
+    recStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  } catch (e) { toast('دسترسی به میکروفن ممکن نشد. «فایل» را امتحان کن.', 'err'); return; }
+  audio.pause(); recChunks = [];
+  const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm'].find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
+  rec = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined);
+  rec.ondataavailable = e => { if (e.data && e.data.size) recChunks.push(e.data); };
+  rec.onstop = () => {
+    clearInterval(recTimer); recStream.getTracks().forEach(t => t.stop()); $('#btnRec').classList.remove('on'); $('#recTxt').textContent = 'ضبط'; $('#recIcon').firstElementChild.setAttribute('href', '#i-mic');
+    S.recSecs = (Date.now() - recT0) / 1000; const type = rec.mimeType || 'audio/webm'; const ext = type.includes('mp4') ? 'm4a' : 'webm';
+    loadFile(new File(recChunks, 'recording-' + new Date().toISOString().slice(11, 19).replace(/:/g, '-') + '.' + ext, { type }));
+  };
+  rec.start(1000); recT0 = Date.now(); $('#btnRec').classList.add('on'); $('#recIcon').firstElementChild.setAttribute('href', '#i-stop');
+  recTimer = setInterval(() => { $('#recTxt').textContent = 'پایان · ' + fmtT((Date.now() - recT0) / 1000); }, 250);
+};
+
+/* ================= Visualizer ================= */
+const viz = $('#viz'), vctx = viz.getContext('2d'); let fdata = null, tdata = null, tPhase = 0;
+function drawViz(t) {
+  const W = viz.width, H = viz.height, cx = W / 2, cy = H / 2, R0 = W * 0.235;
+  vctx.clearRect(0, 0, W, H);
+  const playing = !audio.paused && ready && analyser;
+  const N = 96; let lv = 0;
+  if (playing) { fdata = fdata || new Uint8Array(analyser.frequencyBinCount); tdata = tdata || new Float32Array(analyser.fftSize); analyser.getByteFrequencyData(fdata); analyser.getFloatTimeDomainData(tdata); let s = 0; for (let i = 0; i < tdata.length; i++) s += tdata[i] * tdata[i]; lv = Math.min(1, Math.sqrt(s / tdata.length) * 4.2); }
+  level += (lv - level) * 0.25;
+  // glow
+  const g = vctx.createRadialGradient(cx, cy, R0 * 0.6, cx, cy, W * 0.5); g.addColorStop(0, 'rgba(139,108,255,' + (0.18 + level * 0.35) + ')'); g.addColorStop(0.6, 'rgba(34,211,238,' + (0.04 + level * 0.12) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  vctx.fillStyle = g; vctx.fillRect(0, 0, W, H);
+  // rings
+  vctx.lineWidth = W * 0.004; vctx.strokeStyle = 'rgba(255,255,255,.1)'; vctx.beginPath(); vctx.arc(cx, cy, R0 * (0.98 + level * 0.05), 0, 7); vctx.stroke();
+  vctx.strokeStyle = 'rgba(139,108,255,' + (0.25 + level * 0.5) + ')'; vctx.beginPath(); vctx.arc(cx, cy, R0 * 0.8 * (1 + level * 0.12), 0, 7); vctx.stroke();
+  // bars
+  vctx.lineCap = 'round'; vctx.lineWidth = W * 0.0105; tPhase = t / 1000;
+  for (let i = 0; i < N; i++) {
+    const a = i / N * Math.PI * 2 - Math.PI / 2; let v;
+    if (playing) { const k = Math.min(fdata.length - 1, Math.floor(Math.pow(i / N, 1.6) * fdata.length * 0.62) + 1); v = fdata[k] / 255; v = Math.pow(v, 1.15); }
+    else v = 0.05 + 0.03 * (Math.sin(tPhase * 1.4 + i * 0.5) + 1);
+    const len = W * (0.012 + v * 0.13), r1 = R0 * 1.12, r2 = r1 + len, ca = Math.cos(a), sa = Math.sin(a);
+    const hue = 255 - (i / N) * 150 + Math.sin(tPhase * .5) * 12;
+    vctx.strokeStyle = 'hsla(' + hue + ',95%,' + (62 + v * 14) + '%,' + (0.55 + v * 0.45) + ')';
+    vctx.beginPath(); vctx.moveTo(cx + ca * r1, cy + sa * r1); vctx.lineTo(cx + ca * r2, cy + sa * r2); vctx.stroke();
+  }
+}
+function frame(t) {
+  requestAnimationFrame(frame);
+  drawViz(t);
+  if (S.file) { drawWave(); if (!seeking || true) $('#tCur').textContent = fmtT(audio.currentTime); }
+}
+requestAnimationFrame(frame);
+window.addEventListener('resize', () => { if (S.peaks) buildWave(); });
+
+/* ================= Export (chunked, any length) ================= */
+let exporting = false, cancelFlag = false, worker = null, wreq = null;
+function wcall(msg, tr) { return new Promise((res, rej) => { wreq = { res, rej }; worker.postMessage(msg, tr || []); }); }
+function wavHeader(frames, sr) { const b = new ArrayBuffer(44), d = new DataView(b), w = (o, s) => { for (let i = 0; i < s.length; i++) d.setUint8(o + i, s.charCodeAt(i)); }; w(0, 'RIFF'); d.setUint32(4, 36 + frames * 2, true); w(8, 'WAVEfmt '); d.setUint32(16, 16, true); d.setUint16(20, 1, true); d.setUint16(22, 1, true); d.setUint32(24, sr, true); d.setUint32(28, sr * 2, true); d.setUint16(32, 2, true); d.setUint16(34, 16, true); w(36, 'data'); d.setUint32(40, frames * 2, true); return b; }
+function updatePlan() {
+  if (!S.file) return;
+  const dur = S.dur || 0; let html;
+  if (S.wav) html = '<b>WAV</b> — پردازش جریانی با کیفیت کامل (<bdi>' + Math.round(S.wav.sr / 100) / 10 + ' kHz</bdi>). حافظه‌ی مصرفی کم است و <bdi>' + fmtT(dur) + '</bdi> صوت تقریباً در <bdi>' + fmtT(Math.max(5, dur / 25)) + '</bdi> آماده می‌شود.';
+  else {
+    const r = pickRate(dur || 60, 400e6, 44100);
+    html = r ? '<b>فایل فشرده</b> — دیکد با بودجه‌ی حافظه و خروجی <b><bdi>' + Math.round(r / 100) / 10 + ' kHz</bdi></b> ' + (r < 32000 ? '(بهینه برای گفتار طولانی)' : '(کیفیت بالا)') + '. زمان تقریبی: <bdi>' + fmtT(Math.max(5, dur / 25)) + '</bdi>.'
+      : '<b>صوت بسیار طولانی</b> — دیکد کامل ممکن نیست. از «ضبط خروجی هم‌زمان با پخش» استفاده کن یا فایل را به WAV تبدیل کن.';
+  }
+  $('#plan').innerHTML = html;
+}
+function setProg(show) { $('#prog').classList.toggle('show', show); $('#btnCancel').style.display = show ? '' : 'none'; $('#btnExport').disabled = show || !S.file; }
+async function runExport() {
+  if (!S.file || exporting) return; exporting = true; cancelFlag = false; $('#result').classList.remove('show'); setProg(true); $('#barFill').style.width = '0';
+  const params = Object.assign({}, S.cur); let readMono, total, sr, tailSec;
+  try {
+    $('#pPct').textContent = 'آماده‌سازی…'; $('#pSpeed').textContent = ''; $('#pEta').textContent = '';
+    if (S.wav) { sr = S.wav.sr; total = S.wav.frames; readMono = (s, c) => WavReader.read(S.wav, s, c); }
+    else {
+      $('#pPct').textContent = 'در حال دیکد…'; await nextFrame();
+      const buf = await decodeBudget(S.file, S.dur || 60, 400e6, 44100); sr = buf.sampleRate; total = buf.length;
+      const chs = []; for (let c = 0; c < buf.numberOfChannels; c++) chs.push(buf.getChannelData(c));
+      readMono = async (s, c) => { c = Math.min(c, total - s); const o = new Float32Array(c); if (chs.length === 1) o.set(chs[0].subarray(s, s + c)); else for (let i = 0; i < c; i++) { let a = 0; for (let k = 0; k < chs.length; k++) a += chs[k][s + i]; o[i] = a / chs.length; } return o; };
+    }
+    worker = new Worker(blobURL(workerSrc));
+    worker.onmessage = e => { if (wreq) { const r = wreq; wreq = null; r.res(e.data); } };
+    worker.onerror = e => { if (wreq) { const r = wreq; wreq = null; r.rej(new Error('worker')); } };
+    const init = await wcall({ t: 'init', sr, p: params }); tailSec = init.tail;
+    const CH = 1 << 16, parts = [], t0 = performance.now(); let done = 0, frames = 0, lastUI = 0; const totalAll = total + Math.round(tailSec * sr);
+    while (done < total && !cancelFlag) {
+      const x = await readMono(done, CH); const n = x.length; if (!n) break; const r = await wcall({ t: 'run', x }, [x.buffer]); parts.push(r.o); frames += r.o.length; done += n;
+      const now = performance.now(); if (now - lastUI > 120) { lastUI = now; progUI(done / totalAll, done / sr, (now - t0) / 1000, totalAll / sr); await nextFrame(); }
+    }
+    let tail = Math.round(tailSec * sr);
+    while (tail > 0 && !cancelFlag) { const n = Math.min(CH, tail); const r = await wcall({ t: 'run', x: new Float32Array(n) }); parts.push(r.o); frames += n; tail -= n; }
+    if (cancelFlag) throw new Error('cancel');
+    progUI(1, total / sr, (performance.now() - t0) / 1000, totalAll / sr);
+    const blob = new Blob([wavHeader(frames, sr)].concat(parts), { type: 'audio/wav' });
+    showResult(blob, frames / sr, sr, 'wav');
+  } catch (e) {
+    if (e.message === 'cancel') toast('پردازش لغو شد');
+    else if (e.message === 'too_long') toast('این صوت برای دیکد کامل خیلی طولانی است؛ «ضبط خروجی هم‌زمان با پخش» را بزن.', 'err');
+    else toast('پردازش انجام نشد: ' + (e.message || 'خطا') + '. اگر فایل خیلی بزرگ است، آن را به WAV تبدیل کن.', 'err');
+  } finally { if (worker) { worker.terminate(); worker = null; } exporting = false; setProg(false); }
+}
+function progUI(p, doneSec, el, totalSec) {
+  p = clamp(p, 0, 1); $('#barFill').style.width = (p * 100).toFixed(1) + '%'; $('#pPct').textContent = (p * 100).toFixed(0) + '%';
+  const speed = el > 0 ? doneSec / el : 0; $('#pSpeed').textContent = speed ? speed.toFixed(0) + '× سریع‌تر از پخش' : '';
+  const eta = speed ? (totalSec - doneSec) / speed : 0; $('#pEta').textContent = 'باقی‌مانده ≈ ' + fmtT(eta);
+}
+function showResult(blob, dur, sr, ext) {
+  const p = allPresets().find(x => x.id === S.preset); const base = ((S.file.name || 'voice').replace(/\.[^.]+$/, '')) + '-' + (p ? p.id : 'fx') + '.' + ext;
+  const old = $('#rLink').href; if (old && old.startsWith('blob:')) URL.revokeObjectURL(old);
+  const url = URL.createObjectURL(blob); $('#rLink').href = url; $('#rLink').download = base; $('#rAudio').src = url;
+  $('#rMeta').textContent = [fmtT(dur), fmtB(blob.size)].concat(sr ? [Math.round(sr / 100) / 10 + ' kHz'] : []).join('  |  ');
+  $('#result').classList.add('show'); toast('فایل آماده است ✅', 'ok'); $('#result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+$('#btnExport').onclick = runExport;
+$('#btnCancel').onclick = () => { cancelFlag = true; if (capRec && capRec.state === 'recording') capRec.stop(); };
+
+/* real-time capture fallback */
+let capRec = null;
+$('#btnLiveCap').onclick = async () => {
+  if (!S.file) { toast('اول یک فایل انتخاب کن', 'err'); return; }
+  if (exporting) return;
+  if (!(await ensureAudio())) { toast('ضبط هم‌زمان به پیش‌نمایش زنده نیاز دارد.', 'err'); return; }
+  exporting = true; cancelFlag = false; setProg(true); $('#result').classList.remove('show'); setAB('fx');
+  const dest = ctx.createMediaStreamDestination(); node.connect(dest);
+  const mime = ['audio/webm;codecs=opus', 'audio/mp4'].find(m => MediaRecorder.isTypeSupported(m)); const chunks = [];
+  capRec = new MediaRecorder(dest.stream, mime ? { mimeType: mime } : undefined); capRec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  const stopped = new Promise(r => capRec.onstop = r); capRec.start(2000);
+  audio.currentTime = 0; audio.playbackRate = 1; await audio.play();
+  const t0 = performance.now();
+  const iv = setInterval(() => { progUI(audio.currentTime / (S.dur || 1), audio.currentTime, (performance.now() - t0) / 1000, S.dur); }, 300);
+  await new Promise(r => { audio.addEventListener('ended', r, { once: true }); capRec.addEventListener('stop', r, { once: true }); });
+  clearInterval(iv); audio.pause(); if (capRec.state === 'recording') capRec.stop(); await stopped; node.disconnect(dest);
+  exporting = false; setProg(false);
+  if (!cancelFlag && chunks.length) { const type = capRec.mimeType || 'audio/webm'; showResult(new Blob(chunks, { type }), S.dur, 0, type.includes('mp4') ? 'm4a' : 'webm'); }
+};
+
+/* ================= Init ================= */
+renderCats(); renderPresets(); syncSliders();
+selectPreset(store.get('vx_last', 'robot'));
+if (!window.isSecureContext && location.protocol !== 'file:') { $('#b-live').textContent = 'برای پیش‌نمایش زنده به HTTPS نیاز است'; }
+})();
+
+</script>
+</body>
+</html>
